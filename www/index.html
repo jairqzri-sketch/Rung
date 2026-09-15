@@ -4,80 +4,273 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>Rung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
 <style>
-  :root { --bg:#0e0f12; --card:#17181d; --line:#2a2c33; --txt:#eee; --mut:#8b8e97; }
+  :root {
+    --bg:#0b0b0c; --surface:#141416; --surface2:#1c1c1f;
+    --fg:#f3f1ec; --muted:#8c8a84; --accent:#d8d2c6; --accent-fg:#141416;
+    --border:rgba(243,241,236,.1);
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,sans-serif; background:var(--bg); color:var(--txt); }
-  header { padding:16px 16px 8px; }
-  h1 { margin:0; font-size:28px; }
-  .row { display:flex; gap:8px; padding:8px 16px 16px; }
-  input, button, select { font:inherit; }
-  input { flex:1; background:#111; color:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
-  button { background:#fff; color:#111; border:0; border-radius:10px; padding:10px 14px; font-weight:600; }
-  .tier { margin:10px 12px; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
-  .tier-h { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; font-weight:700; }
-  .items { min-height:48px; background:var(--card); padding:8px; display:flex; flex-wrap:wrap; gap:8px; }
-  .item { background:#222; border:1px solid var(--line); border-radius:10px; padding:8px 10px; display:flex; gap:8px; align-items:center; }
-  .item button { background:#333; color:#fff; padding:6px 8px; font-size:12px; }
-  .unranked .tier-h { background:#2a2c33; }
+  body { margin:0; background:var(--bg); color:var(--fg); font-family:Figtree,system-ui,sans-serif; }
+  header { height:56px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; }
+  .brand { font-family:"Instrument Serif",Georgia,serif; font-size:28px; }
+  .btn { border:0; border-radius:10px; padding:8px 14px; font:inherit; font-weight:600; background:var(--accent); color:var(--accent-fg); }
+  .btn.ghost { background:transparent; color:var(--fg); border:1px solid var(--border); }
+  main { padding:20px 16px 48px; max-width:720px; margin:0 auto; }
+  .kicker { color:var(--muted); letter-spacing:.08em; text-transform:uppercase; font-size:12px; font-weight:600; }
+  h1 { font-family:"Instrument Serif",Georgia,serif; font-size:42px; line-height:1.05; font-weight:400; margin:8px 0 12px; }
+  h1 em { font-style:italic; }
+  .sub { color:var(--muted); line-height:1.45; margin:0 0 20px; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; }
+  .hero { background:var(--surface); border-radius:16px; padding:12px; margin:18px 0 28px; }
+  .rung { display:flex; overflow:hidden; border-radius:6px; margin:6px 0; }
+  .rung b { width:52px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .rung .lane { flex:1; background:var(--surface2); min-height:40px; display:flex; flex-wrap:wrap; gap:6px; padding:6px; }
+  .chip { height:28px; min-width:28px; border-radius:4px; background:#8c8a84; }
+  .lists { display:flex; flex-direction:column; gap:12px; }
+  .card { background:var(--surface); border-radius:16px; padding:14px; border:1px solid var(--border); }
+  .card h3 { margin:0 0 8px; font-size:18px; }
+  .mini { height:8px; border-radius:3px; margin:4px 0; display:flex; overflow:hidden; }
+  .mini i { width:36px; display:block; }
+  .mini span { flex:1; background:var(--surface2); }
+  .row { display:flex; gap:8px; margin:10px 0; }
+  input, select { flex:1; background:#111; color:var(--fg); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font:inherit; }
+  .item { background:#222; border-radius:8px; padding:6px 8px; display:flex; align-items:center; gap:6px; font-size:14px; }
+  .tiny { background:#333; color:#fff; border:0; border-radius:6px; padding:4px 7px; font-size:12px; }
+  .hidden { display:none; }
+  .back { background:transparent; color:var(--muted); border:0; font:inherit; margin-bottom:12px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Rung</h1>
-  <p style="color:var(--mut);margin:6px 0 0">Offline tier list. Saved on this phone.</p>
+  <div class="brand">Rung</div>
+  <div>
+    <button class="btn ghost" id="importBtn" type="button">Import</button>
+    <button class="btn" id="newBtn" type="button">+ New list</button>
+    <input id="file" type="file" accept="application/json" class="hidden"/>
+  </div>
 </header>
-<div class="row">
-  <input id="label" placeholder="Add item"/>
-  <button id="add">Add</button>
+
+<div id="home">
+<main>
+  <p class="kicker">Tier lists, on your terms</p>
+  <h1>Rank <em>anything</em>. Name every rung.</h1>
+  <p class="sub">Color the rows, add items, keep every list on this phone. No account.</p>
+  <div class="actions">
+    <button class="btn" id="startBtn" type="button">Start a list</button>
+    <button class="btn ghost" id="importBtn2" type="button">Import JSON</button>
+  </div>
+  <div class="hero" id="heroDemo"></div>
+  <p class="kicker">Your lists</p>
+  <div class="lists" id="listCards"></div>
+</main>
 </div>
-<div id="board"></div>
+
+<div id="editor" class="hidden">
+<main>
+  <button class="back" id="backBtn" type="button">← Lists</button>
+  <input id="title" style="width:100%;margin-bottom:12px;font-size:22px;background:transparent;border:0;color:var(--fg);font-family:Instrument Serif,Georgia,serif;"/>
+  <div class="row">
+    <input id="newItem" placeholder="Add item"/>
+    <button class="btn" id="addItem" type="button">Add</button>
+  </div>
+  <div id="tiers"></div>
+</main>
+</div>
+
+<div id="picker" class="hidden">
+<main>
+  <button class="back" id="cancelNew" type="button">← Cancel</button>
+  <h1>New list</h1>
+  <input id="newTitle" placeholder="List name" style="width:100%;margin:12px 0;"/>
+  <p class="kicker">Template</p>
+  <div id="templates"></div>
+  <button class="btn" id="createBtn" type="button" style="margin-top:16px;">Create</button>
+</main>
+</div>
+
 <script>
-const TIERS = [
-  {id:'s', name:'S', color:'#ff5a5a'},
-  {id:'a', name:'A', color:'#ff8a3d'},
-  {id:'b', name:'B', color:'#ffd23f'},
-  {id:'c', name:'C', color:'#6dd36d'},
-  {id:'d', name:'D', color:'#5aa7ff'},
-  {id:'u', name:'Unranked', color:'#666'}
+var TEMPLATES = [
+  {id:"classic", name:"Classic", hint:"S through F", tiers:[
+    {name:"S", color:"#e85d4c"},{name:"A", color:"#e89a4c"},{name:"B", color:"#e8c84c"},
+    {name:"C", color:"#7dbe6a"},{name:"D", color:"#5aa0d6"},{name:"F", color:"#8b86a8"}
+  ]},
+  {id:"five", name:"Five rungs", hint:"Loved to no", tiers:[
+    {name:"Loved", color:"#e85d4c"},{name:"Liked", color:"#e89a4c"},{name:"Fine", color:"#e8c84c"},
+    {name:"Meh", color:"#5aa0d6"},{name:"No", color:"#8b86a8"}
+  ]},
+  {id:"verdict", name:"Verdict", hint:"Keep, maybe, pass", tiers:[
+    {name:"Keep", color:"#2f9e7b"},{name:"Maybe", color:"#e8c84c"},{name:"Pass", color:"#8b86a8"}
+  ]}
 ];
-const KEY = 'rung-v1';
-let items = JSON.parse(localStorage.getItem(KEY) || '[]');
-function save(){ localStorage.setItem(KEY, JSON.stringify(items)); render(); }
-function add(){
-  const el = document.getElementById('label');
-  const t = el.value.trim(); if(!t) return;
-  items.push({id:Date.now()+Math.random(), label:t, tier:'u'});
-  el.value=''; save();
+var KEY = "rung-boards-v1";
+var state = { boards:[], current:null, template:"classic" };
+
+function load(){
+  try { state.boards = JSON.parse(localStorage.getItem(KEY) || "[]"); }
+  catch(e){ state.boards = []; }
 }
-function move(id, dir){
-  const order = TIERS.map(t=>t.id);
-  const it = items.find(x=>x.id==id); if(!it) return;
-  const i = order.indexOf(it.tier);
-  it.tier = order[Math.max(0, Math.min(order.length-1, i+dir))];
+function save(){ localStorage.setItem(KEY, JSON.stringify(state.boards)); }
+function uid(){ return String(Date.now()) + Math.random().toString(16).slice(2); }
+function show(id){
+  document.getElementById("home").className = id==="home"?"":"hidden";
+  document.getElementById("editor").className = id==="editor"?"":"hidden";
+  document.getElementById("picker").className = id==="picker"?"":"hidden";
+}
+
+function demo(){
+  var html = "";
+  var rows = TEMPLATES[0].tiers.slice(0,5);
+  var i;
+  for(i=0;i<rows.length;i++){
+    html += '<div class="rung"><b style="background:'+rows[i].color+'">'+rows[i].name+'</b><div class="lane">';
+    html += '<span class="chip"></span><span class="chip" style="background:#d8d2c6"></span>';
+    html += '</div></div>';
+  }
+  document.getElementById("heroDemo").innerHTML = html;
+}
+
+function renderHome(){
+  var box = document.getElementById("listCards");
+  if(!state.boards.length){
+    box.innerHTML = '<p class="sub">No lists yet.</p>';
+    return;
+  }
+  var html = "", b, t, j;
+  for(var i=0;i<state.boards.length;i++){
+    b = state.boards[i];
+    html += '<div class="card" data-id="'+b.id+'"><h3>'+esc(b.title)+'</h3>';
+    for(j=0;j<b.tiers.length;j++){
+      t = b.tiers[j];
+      html += '<div class="mini"><i style="background:'+t.color+'"></i><span></span></div>';
+    }
+    html += '<div class="row"><button class="btn" data-open="'+b.id+'">Open</button>';
+    html += '<button class="btn ghost" data-del="'+b.id+'">Delete</button></div></div>';
+  }
+  box.innerHTML = html;
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+function openPicker(){
+  var html = "", i, t;
+  for(i=0;i<TEMPLATES.length;i++){
+    t = TEMPLATES[i];
+    html += '<div class="card" style="margin:8px 0"><strong>'+t.name+'</strong> <span class="sub">'+t.hint+'</span><br/>';
+    html += '<button class="btn ghost" data-tpl="'+t.id+'">Use</button></div>';
+  }
+  document.getElementById("templates").innerHTML = html;
+  document.getElementById("newTitle").value = "Untitled";
+  show("picker");
+}
+
+function createBoard(){
+  var tpl = TEMPLATES[0], i;
+  for(i=0;i<TEMPLATES.length;i++) if(TEMPLATES[i].id===state.template) tpl = TEMPLATES[i];
+  var tiers = [];
+  for(i=0;i<tpl.tiers.length;i++){
+    tiers.push({id:uid(), name:tpl.tiers[i].name, color:tpl.tiers[i].color, items:[]});
+  }
+  var board = {id:uid(), title:document.getElementById("newTitle").value.trim()||"Untitled", tiers:tiers};
+  state.boards.unshift(board);
   save();
+  openBoard(board.id);
 }
-function del(id){ items = items.filter(x=>x.id!=id); save(); }
-function render(){
-  const root = document.getElementById('board');
-  root.innerHTML = TIERS.map(t => {
-    const list = items.filter(x=>x.tier===t.id);
-    return `<section class="tier ${t.id==='u'?'unranked':''}">
-      <div class="tier-h" style="background:\( {t.color};color:#111"> \){t.name} · ${list.length}</div>
-      <div class="items">${list.map(x=>`
-        <div class="item">
-          <span>${x.label}</span>
-          <button onclick="move(${JSON.stringify(x.id)},-1)">↑</button>
-          <button onclick="move(${JSON.stringify(x.id)},1)">↓</button>
-          <button onclick="del(${JSON.stringify(x.id)})">×</button>
-        </div>`).join('')||'<span style="color:#777;padding:6px">Empty</span>'}
-      </div>
-    </section>`;
-  }).join('');
+
+function openBoard(id){
+  var i, b=null;
+  for(i=0;i<state.boards.length;i++) if(state.boards[i].id===id) b=state.boards[i];
+  if(!b) return;
+  state.current = b;
+  document.getElementById("title").value = b.title;
+  renderTiers();
+  show("editor");
 }
-document.getElementById('add').onclick = add;
-document.getElementById('label').addEventListener('keydown', e => { if(e.key==='Enter') add(); });
-render();
+
+function renderTiers(){
+  var b = state.current, html="", t, it, i, j;
+  for(i=0;i<b.tiers.length;i++){
+    t = b.tiers[i];
+    html += '<div class="rung"><b style="background:'+t.color+'">'+esc(t.name)+'</b><div class="lane">';
+    for(j=0;j<t.items.length;j++){
+      it = t.items[j];
+      html += '<div class="item">'+esc(it);
+      html += '<button class="tiny" data-up="'+i+':'+j+'">↑</button>';
+      html += '<button class="tiny" data-dn="'+i+':'+j+'">↓</button>';
+      html += '<button class="tiny" data-rm="'+i+':'+j+'">×</button></div>';
+    }
+    html += '</div></div>';
+  }
+  document.getElementById("tiers").innerHTML = html;
+}
+
+function addItem(){
+  var v = document.getElementById("newItem").value.trim();
+  if(!v || !state.current) return;
+  state.current.tiers[state.current.tiers.length-1].items.push(v);
+  document.getElementById("newItem").value = "";
+  save(); renderTiers();
+}
+
+function moveItem(ti, ii, dir){
+  var tiers = state.current.tiers;
+  var dest = ti + dir;
+  if(dest<0 || dest>=tiers.length) return;
+  var item = tiers[ti].items.splice(ii,1)[0];
+  tiers[dest].items.push(item);
+  save(); renderTiers();
+}
+
+document.getElementById("newBtn").onclick = openPicker;
+document.getElementById("startBtn").onclick = openPicker;
+document.getElementById("cancelNew").onclick = function(){ show("home"); renderHome(); };
+document.getElementById("createBtn").onclick = createBoard;
+document.getElementById("backBtn").onclick = function(){ state.current=null; show("home"); renderHome(); };
+document.getElementById("addItem").onclick = addItem;
+document.getElementById("title").onchange = function(){
+  if(state.current){ state.current.title=this.value; save(); }
+};
+document.getElementById("listCards").onclick = function(e){
+  var t = e.target;
+  if(t.getAttribute("data-open")) openBoard(t.getAttribute("data-open"));
+  if(t.getAttribute("data-del")){
+    var id=t.getAttribute("data-del");
+    state.boards = state.boards.filter(function(b){ return b.id!==id; });
+    save(); renderHome();
+  }
+};
+document.getElementById("templates").onclick = function(e){
+  var t = e.target.getAttribute("data-tpl");
+  if(t) state.template = t;
+};
+document.getElementById("tiers").onclick = function(e){
+  var t=e.target, p;
+  if(t.getAttribute("data-up")){ p=t.getAttribute("data-up").split(":"); moveItem(+p[0],+p[1],-1); }
+  if(t.getAttribute("data-dn")){ p=t.getAttribute("data-dn").split(":"); moveItem(+p[0],+p[1],1); }
+  if(t.getAttribute("data-rm")){
+    p=t.getAttribute("data-rm").split(":");
+    state.current.tiers[+p[0]].items.splice(+p[1],1);
+    save(); renderTiers();
+  }
+};
+function pickFile(){ document.getElementById("file").click(); }
+document.getElementById("importBtn").onclick = pickFile;
+document.getElementById("importBtn2").onclick = pickFile;
+document.getElementById("file").onchange = function(e){
+  var f=e.target.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){
+    try{
+      var data=JSON.parse(r.result);
+      if(data.title && data.tiers){ state.boards.unshift(data); save(); renderHome(); }
+    }catch(err){}
+  };
+  r.readAsText(f);
+};
+
+load(); demo(); renderHome();
 </script>
 </body>
 </html>
