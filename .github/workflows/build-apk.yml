@@ -33,12 +33,12 @@ jobs:
           printf '%s\n' '{"appId":"com.jairqzri.rung","appName":"Rung","webDir":"dist"}' > capacitor.config.json
 
       - name: Build web
-        working-directory: app
         run: |
-          npm run build --if-present || true
-          mkdir -p dist
-          if [ ! -f dist/index.html ]; then
-            echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rung</title></head><body style="font-family:system-ui;background:#111;color:#eee;padding:24px"><h1>Rung</h1><p>Wrapper installed. Full Vite build did not emit dist/index.html on this run.</p></body></html>' > dist/index.html
+          mkdir -p app/dist
+          if [ -f www/index.html ]; then
+            cp www/index.html app/dist/index.html
+          else
+            echo '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rung</title></head><body style="font-family:system-ui;background:#111;color:#eee;padding:24px"><h1>Rung</h1><p>Missing www/index.html in the repo.</p></body></html>' > app/dist/index.html
           fi
 
       - name: Android project
